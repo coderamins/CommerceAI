@@ -1,4 +1,5 @@
 ﻿using CommerceAI.Application.Features.Products.CreateProduct;
+using CommerceAI.Application.Queries.Products.GetProductById;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -32,10 +33,20 @@ namespace CommerceAI.API.Controllers
         }
 
         [HttpGet("{id:guid}")]
-        public IActionResult GetById(Guid Id)
+        public async Task<IActionResult> GetById(
+            Guid id,
+            CancellationToken cancellationToken)
         {
-            return Ok();
+            var product = await _sender.Send(
+                new GetProductByIdQuery(id),
+                cancellationToken);
+
+            if (product is null)
+                return NotFound();
+
+            return Ok(product);
         }
+
 
     }
 }
