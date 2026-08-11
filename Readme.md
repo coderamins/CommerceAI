@@ -24,11 +24,11 @@ The project will progressively incorporate \*\*AI/LLM capabilities\*\* as first-
 
 
 
-\## Tech Stack
+\# Tech Stack
 
 
 
-\### Backend
+\## Backend
 
 
 
@@ -46,7 +46,7 @@ The project will progressively incorporate \*\*AI/LLM capabilities\*\* as first-
 
 
 
-\### Architecture
+\## Architecture
 
 
 
@@ -64,7 +64,7 @@ The project will progressively incorporate \*\*AI/LLM capabilities\*\* as first-
 
 
 
-\### Infrastructure
+\## Infrastructure
 
 
 
@@ -80,7 +80,7 @@ The project will progressively incorporate \*\*AI/LLM capabilities\*\* as first-
 
 
 
-\### AI
+\## AI
 
 
 
@@ -108,7 +108,7 @@ Planned:
 
 
 
-\### DevOps
+\## DevOps
 
 
 
@@ -136,7 +136,7 @@ Planned:
 
 
 
-\### Testing
+\## Testing
 
 
 
@@ -256,19 +256,11 @@ CommerceAI/
 
 ├── src/
 
-│   │
-
 │   ├── CommerceAI.API/
-
-│   │
 
 │   ├── CommerceAI.Application/
 
-│   │
-
 │   ├── CommerceAI.Domain/
-
-│   │
 
 │   └── CommerceAI.Infrastructure/
 
@@ -276,11 +268,7 @@ CommerceAI/
 
 ├── tests/
 
-│   │
-
 │   ├── CommerceAI.UnitTests/
-
-│   │
 
 │   └── CommerceAI.IntegrationTests/
 
@@ -372,7 +360,7 @@ CommerceAI/
 
 
 
-\### Authentication
+\## Authentication
 
 
 
@@ -392,7 +380,7 @@ CommerceAI/
 
 
 
-\### Reliability
+\## Reliability
 
 
 
@@ -414,7 +402,7 @@ CommerceAI/
 
 
 
-\### Data
+\## Data
 
 
 
@@ -668,7 +656,7 @@ AI will be treated as a first-class capability of CommerceAI.
 
 
 
-Target architecture:
+\### Target architecture
 
 
 
@@ -732,7 +720,7 @@ The CI/CD pipeline will be built incrementally.
 
 
 
-Target:
+\### Target
 
 
 
@@ -762,13 +750,9 @@ GitHub Actions
 
 &#x20;    ▼
 
-&#x20;   PASS
+&#x20;  PASS
 
 ```
-
-
-
-\---
 
 
 
@@ -1026,7 +1010,7 @@ Topics that will be covered include:
 
 
 
-\### .NET
+\## .NET
 
 
 
@@ -1052,7 +1036,7 @@ Topics that will be covered include:
 
 
 
-\### Architecture
+\## Architecture
 
 
 
@@ -1074,7 +1058,7 @@ Topics that will be covered include:
 
 
 
-\### Databases
+\## Databases
 
 
 
@@ -1094,7 +1078,7 @@ Topics that will be covered include:
 
 
 
-\### Distributed Systems
+\## Distributed Systems
 
 
 
@@ -1114,7 +1098,7 @@ Topics that will be covered include:
 
 
 
-\### DevOps
+\## DevOps
 
 
 
@@ -1138,7 +1122,7 @@ Topics that will be covered include:
 
 
 
-\### AI Engineering
+\## AI Engineering
 
 
 
