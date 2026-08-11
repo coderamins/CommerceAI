@@ -5,7 +5,7 @@ namespace CommerceAI.Domain.Entities;
 
 public class User : BaseEntity
 {
-    public string FullName { get; private set; }
+    public string FullName { get; private set; } = "";
 
     public Email Email { get; private set; }
 
