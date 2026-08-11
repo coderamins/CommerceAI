@@ -35,7 +35,7 @@ public class ValidationBehavior<TRequest, TResponse>
             .Where(error => error is not null)
             .ToList();
 
-        if (!errors.Any())
+        if (errors.Any())
             throw new ValidationException(errors);
 
         return await next();
