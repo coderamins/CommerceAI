@@ -1,0 +1,6 @@
+@CommerceAI.API_HostAddress = http://localhost:5282
+
+GET {{CommerceAI.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
