@@ -1,32 +1,29 @@
 name: CI
 
 on:
-push:
-branches:
-- main
+  push:
+    branches:
+      - main
 
-pull_request:
-branches:
-- main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-build:
+  build:
+    runs-on: ubuntu-latest
 
-```
-runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-steps:
-  - name: Checkout repository
-    uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
 
-  - name: Setup .NET
-    uses: actions/setup-dotnet@v4
-    with:
-      dotnet-version: 9.0.x
+      - name: Restore dependencies
+        run: dotnet restore CommerceAI.slnx
 
-  - name: Restore dependencies
-    run: dotnet restore CommerceAI.slnx
-
-  - name: Build
-    run: dotnet build CommerceAI.slnx --no-restore --configuration Release
-```
+      - name: Build
+        run: dotnet build CommerceAI.slnx --no-restore --configuration Release
