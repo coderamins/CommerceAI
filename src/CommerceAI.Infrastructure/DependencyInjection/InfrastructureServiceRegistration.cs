@@ -16,8 +16,7 @@ public static class InfrastructureServiceRegistration
         services.AddDbContext<ApplicationDbContext>(options =>
         {
             options.UseNpgsql(
-                configuration.GetConnectionString(
-                    configuration.GetConnectionString("DefaultConnection") ?? ""));
+                configuration.GetConnectionString("DefaultConnection") ?? "");
         });
 
         services.AddScoped<IProductRepository, ProductRepository>();
