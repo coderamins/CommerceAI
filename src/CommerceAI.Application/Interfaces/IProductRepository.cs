@@ -14,4 +14,12 @@ public interface IProductRepository
 
     Task SaveChangesAsync(
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<Product>> GetPagedAsync(
+        int pageNumber,
+        int pageSize,
+        CancellationToken cancellationToken = default);
+
+    Task<int> CountAsync(
+        CancellationToken cancellationToken = default);
 }
