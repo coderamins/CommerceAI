@@ -22,29 +22,28 @@ public class GetProductsQueryHandler
         GetProductsQuery request,
         CancellationToken cancellationToken)
     {
-        var products = await _repository.GetPagedAsync(
+        var result = await _repository.GetPagedAsync(
             request.PageNumber,
             request.PageSize,
+            request.Search,
+            request.MinPrice,
+            request.MaxPrice,
+            request.SortBy,
+            request.SortDirection,
             cancellationToken);
 
-        var totalCount = await _repository.CountAsync(
-            cancellationToken);
-
-
-        var items = products
-            .Select(product =>
-                new ProductResponse(
-                    product.Id,
-                    product.Name,
-                    product.Price,
-                    product.Stock))
+        var items = result.Items
+            .Select(product => new ProductResponse(
+                product.Id,
+                product.Name,
+                product.Price,
+                product.Stock))
             .ToList();
-
 
         return new PaginatedResult<ProductResponse>(
             items,
-            totalCount,
-            request.PageNumber,
-            request.PageSize);
+            result.TotalCount,
+            result.PageNumber,
+            result.PageSize);
     }
 }

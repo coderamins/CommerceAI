@@ -7,6 +7,10 @@ namespace CommerceAI.Application.Queries.Products.GetProducts;
 public record GetProductsQuery(
     int PageNumber = 1,
     int PageSize = 20,
-    string? Search = null
+    string? Search = null,
+    decimal? MinPrice = null,
+    decimal? MaxPrice = null,
+    string? SortBy = null,
+    string? SortDirection = null
 )
 : IRequest<PaginatedResult<ProductResponse>>;
