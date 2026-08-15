@@ -1,5 +1,6 @@
 ﻿using CommerceAI.Application.Features.Products.CreateProduct;
 using CommerceAI.Application.Queries.Products.GetProductById;
+using CommerceAI.Application.Queries.Products.GetProducts;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -32,6 +33,7 @@ namespace CommerceAI.API.Controllers
                  new { id = productId });
         }
 
+
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetById(
             Guid id,
@@ -48,5 +50,16 @@ namespace CommerceAI.API.Controllers
         }
 
 
+        [HttpGet]
+        public async Task<IActionResult> GetProducts(
+            [FromQuery] GetProductsQuery query,
+            CancellationToken cancellationToken)
+        {
+            var result = await _sender.Send(
+                query,
+                cancellationToken);
+
+            return Ok(result);
+        }
     }
 }
