@@ -13,7 +13,7 @@ public class GetProductsQueryValidatorTests
     {
         var query = new GetProductsQuery(
                 PageNumber: 1,
-                PageSize: 101
+                PageSize: 100
             );
 
         var result =_validator.TestValidate(query);
