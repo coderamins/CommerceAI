@@ -27,3 +27,6 @@ jobs:
 
       - name: Build
         run: dotnet build CommerceAI.slnx --no-restore --configuration Release
+
+      - name: Test
+        run: dotnet test CommerceAI.slnx --no-build --configuration Release

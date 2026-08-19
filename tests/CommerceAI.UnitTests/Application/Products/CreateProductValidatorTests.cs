@@ -38,8 +38,8 @@ public class CreateProductValidatorTests
     {
         var command = new CreateProductCommand(
                 "p2",
-                -1,
-                100
+                100,
+                -1
             );
 
         var result= _validator.TestValidate(command);
