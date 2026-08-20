@@ -30,3 +30,6 @@ jobs:
 
       - name: Test
         run: dotnet test CommerceAI.slnx --no-build --configuration Release
+
+      - name: Integration tests
+        run: dotnet test tests/CommerceAI.IntegrationTests/CommerceAI.IntegrationTests.csproj --no-build --configuration Release
