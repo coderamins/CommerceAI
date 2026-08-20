@@ -147,6 +147,7 @@ CommerceAI/
 
 ## Phase 1 — Foundation
 
+### Completed
 - [x] Create .NET 9 solution
 - [x] Establish Clean Architecture structure
 - [x] Create Domain entities
@@ -162,18 +163,46 @@ CommerceAI/
 - [x] Introduce FluentValidation
 - [x] Create CreateProduct command
 - [x] Create validation pipeline
+- [x] Global Exception Handling
+- [x] ProblemDetails
+- [x] Complete CreateProduct endpoint
+- [x] GetProduct query
+- [x] GetProducts query
+- [x] Pagination
+- [x] Filtering
+- [x] Sorting
+- [x] No-tracking queries
+- [x] API documentation with Swagger
+
+### Testing
+- [x] Create Unit Test project
+- [x] Validator unit tests
+- [x] Create Integration Test project
+- [x] Configure Testcontainers
+- [x] PostgreSQL integration tests
+- [x] Run integration tests against a real PostgreSQL container
+
+### Git & CI
+- [x] Create GitHub repository
+- [x] Feature branch workflow
+- [x] Pull Requests
+- [x] GitHub Actions
+- [x] Automated restore
+- [x] Automated build
+- [x] Automated unit tests
+- [x] Automated integration tests
 
 ### Next
 
-- [ ] Global Exception Handling
-- [ ] ProblemDetails
-- [ ] Complete CreateProduct endpoint
-- [ ] GetProduct query
-- [ ] GetProducts query
-- [ ] UpdateProduct command
-- [ ] DeleteProduct command
+- [ ] Update Product
+- [ ] Delete Product
+- [ ] Improve API integration tests
+- [ ] Test GetProduct query
+- [ ] Test GetProducts query
+- [ ] Test CreateProduct handler
+- [ ] Test missing product scenarios
 - [ ] API documentation with Swagger
-- [ ] Add initial unit tests
+- [ ] Code coverage
 
 ---
 
@@ -191,9 +220,9 @@ CommerceAI/
 
 ## Reliability
 
-- [ ] Global exception handling
-- [ ] ProblemDetails
-- [ ] Request validation
+- [x] Global exception handling
+- [x] ProblemDetails
+- [x] Request validation
 - [ ] Structured logging
 - [ ] Health checks
 - [ ] Retry policies
@@ -202,11 +231,11 @@ CommerceAI/
 
 ## Data
 
-- [ ] Pagination
-- [ ] Filtering
-- [ ] Sorting
-- [ ] Optimized queries
-- [ ] No-tracking queries
+- [x] Pagination
+- [x] Filtering
+- [x] Sorting
+- [x] Optimized queries
+- [x] No-tracking queries
 - [ ] Database indexes
 - [ ] Concurrency handling
 
@@ -294,15 +323,15 @@ AI will be treated as a first-class capability of CommerceAI.
 - [ ] Domain tests
 - [ ] Value Object tests
 - [ ] Command handler tests
-- [ ] Validator tests
+- [x] Validator tests
 - [ ] Business rule tests
 
 ## Integration Tests
 
-- [ ] PostgreSQL integration tests
-- [ ] Repository tests
+- [x] PostgreSQL integration tests
+- [x] Repository tests
 - [ ] API integration tests
-- [ ] Testcontainers
+- [x] Testcontainers
 - [ ] RabbitMQ integration tests
 - [ ] Redis integration tests
 
@@ -346,20 +375,20 @@ The CI/CD pipeline will be built incrementally.
 
 ## Continuous Integration
 
-- [ ] GitHub repository
-- [ ] Branch strategy
-- [ ] Pull Requests
-- [ ] GitHub Actions
-- [ ] Restore dependencies
-- [ ] Build solution
-- [ ] Run unit tests
-- [ ] Run integration tests
+- [X] GitHub repository
+- [X] Branch strategy
+- [X] Pull Requests
+- [X] GitHub Actions
+- [X] Restore dependencies
+- [X] Build solution
+- [X] Run unit tests
+- [X] Run integration tests
 - [ ] Generate test reports
 - [ ] Code coverage
 - [ ] Docker image build
 - [ ] Docker image validation
 
-## Target
+## Current CI
 
 ```text
 Pull Request
@@ -369,8 +398,33 @@ GitHub Actions
      │
      ├── Restore
      ├── Build
-     ├── Test
+     ├── Unit Tests
+     └── Integration Tests
+              │
+              ▼
+         Testcontainers
+              │
+              ▼
+         PostgreSQL
+     │
+     ▼
+   PASS
+```
+
+## Target CI
+
+```text
+Pull Request
+     │
+     ▼
+GitHub Actions
+     │
+     ├── Restore
+     ├── Build
+     ├── Unit Tests
+     ├── Integration Tests
      ├── Coverage
+     ├── Security Checks
      └── Docker Build
      │
      ▼
@@ -439,6 +493,7 @@ Example branches:
 main
  │
  ├── feature/create-product
+ ├── feature/get-products
  ├── feature/authentication
  ├── feature/ai-product-description
  ├── feature/vector-search
@@ -578,7 +633,9 @@ Topics that will be covered include:
 
 **Current phase:** Foundation
 
-**Current focus:** Product creation flow
+**Current focus:** Automated testing and integration testing
+
+Current application flow:
 
 ```text
 API
@@ -596,7 +653,7 @@ EF Core
 PostgreSQL
 ```
 
----
+--- 
 
 # Learning Philosophy
 
