@@ -6,6 +6,7 @@
     <Project Path="src/CommerceAI.Infrastructure/CommerceAI.Infrastructure.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/CommerceAI.IntegrationTests/CommerceAI.IntegrationTests.csproj" />
     <Project Path="tests/CommerceAI.UnitTests/CommerceAI.UnitTests.csproj" />
   </Folder>
 </Solution>
