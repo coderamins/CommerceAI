@@ -14,7 +14,6 @@ builder.Services.AddProblemDetails();
 
 
 builder.Services.AddSwaggerGen();
-builder.Services.AddOpenApi();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddMediatR(cfg =>
 {
@@ -33,7 +32,6 @@ using (var scope = app.Services.CreateScope())
 
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
     app.UseSwagger();
     app.UseSwaggerUI();
 }
@@ -44,4 +42,6 @@ app.MapControllers();
 
 app.UseHttpsRedirection();
 app.Run();
-
+public partial class Program
+{
+}

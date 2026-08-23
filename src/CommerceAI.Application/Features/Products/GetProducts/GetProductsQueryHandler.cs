@@ -42,8 +42,9 @@ public class GetProductsQueryHandler
 
         return new PaginatedResult<ProductResponse>(
             items,
-            result.TotalCount,
             result.PageNumber,
-            result.PageSize);
+            result.PageSize,
+            result.TotalCount
+            );
     }
 }

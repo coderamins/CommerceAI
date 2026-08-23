@@ -1,6 +1,9 @@
 ﻿using CommerceAI.Domain.Entities;
 using CommerceAI.Infrastructure.Persistence.Repositories;
 using CommerceAI.IntegrationTests.Infrastructure;
+using System;
+using System.Threading.Tasks;
+using Xunit;
 
 namespace CommerceAI.IntegrationTests.Products;
 
@@ -40,4 +43,6 @@ public class ProductRepositoryTest
                 result.Name
             );
     }
+
+ 
 }

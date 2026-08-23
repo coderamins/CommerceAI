@@ -91,9 +91,9 @@ public class ProductRepository : IProductRepository
 
         return new PaginatedResult<Product>(
             items,
-            totalCount,
             pageNumber,
-            pageSize);
+            pageSize,
+            totalCount);
     }
 
 
