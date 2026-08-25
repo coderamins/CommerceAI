@@ -14,55 +14,50 @@ using Xunit;
 
 namespace CommerceAI.IntegrationTests.Products;
 
-public class GetProductApiTests:
-    IClassFixture<CustomWebApplicationFactory>
+public class GetProductApiTests : IntegrationTestBase
 {
-    private readonly HttpClient _client;
-    private readonly CustomWebApplicationFactory _factory;
-
-    public GetProductApiTests(CustomWebApplicationFactory factory)
+    public GetProductApiTests(
+        CustomWebApplicationFactory factory) : base(factory)
     {
-        _client = factory.CreateClient();
-        _factory = factory;
+
     }
 
     [Fact]
     public async Task GetProduct_Should_Return_200_When_Product_Exists()
     {
         //Arrange
-        var product = new Product(
+        Product product = new Product(
                 "Mechanical Keyboard",
                 120,
-                10);
+                10
+                );
 
-        await _factory.SeedAsync(product);
+        await Factory.SeedAsync(product);
 
         //Act
-        var response = await _client.GetAsync(
+        var response = await Client.GetAsync(
             $"/api/products/{product.Id}");
 
         //Assert
         Assert.Equal(
                 HttpStatusCode.OK,
                 response.StatusCode);
+
     }
 
     [Fact]
     public async Task GetProducts_Should_Return_Paginated_Result()
     {
-        // Arrange
-        var products = new[]
-        {
+        // Arrange        
+        await Factory.SeedAsync(
+        [
             new Product("Keyboard", 100, 5),
             new Product("Mouse", 50, 10),
             new Product("Monitor", 300, 3)
-        };
-
-        await _factory.SeedAsync(products);
-
+        ]);
 
         // Act
-        var response = await _client.GetAsync(
+        var response = await Client.GetAsync(
             "/api/products?pageNumber=1&pageSize=2");
 
 
@@ -86,7 +81,7 @@ public class GetProductApiTests:
         var id = Guid.NewGuid();
 
         //Act
-        var response = await _client
+        var response = await Client
             .GetAsync($"/api/products/{id}");
 
         //Assert
@@ -99,17 +94,15 @@ public class GetProductApiTests:
     public async Task GetProducts_Should_Filter_By_Name()
     {
         //Arrnage
-        var products = new[]
-        {
+        await Factory.SeedAsync(
+        [
             new Product("Mechanical Keyboard",120,5),
             new Product("Wireless Mouse",50,10),
             new Product("Gaming Keyboard",150,3)
-        };
-
-        await _factory.SeedAsync(products);
+        ]);
 
         //Act
-        var response = await _client
+        var response = await Client
             .GetAsync($"/api/products?search=Keyboard");
 
         //Assert
@@ -126,18 +119,15 @@ public class GetProductApiTests:
     public async Task GetProducts_Should_Sort_By_Price_Decending()
     {
         //Arrnage
-        var products = new[]
-        {
-            new Product("Mechanical Keyboard",100,10),
-            new Product("Wireless Mouse",150,30),
-            new Product("Gaming Keyboard",130,50),
-            new Product("Monitor",135,50),
-        };
-
-        await _factory.SeedAsync(products);
+        await Factory.SeedAsync(
+        [
+            new Product("Keyboard",120,5),
+            new Product("Mouse",500,10),
+            new Product("Monitor",300,3)
+        ]);
 
         //Act
-        var response = await _client
+        var response = await Client
             .GetAsync($"/api/products?sortBy=price&sortDirection=desc");
 
         //Assert
@@ -147,7 +137,7 @@ public class GetProductApiTests:
             await response.Content
                 .ReadFromJsonAsync<PaginatedResult<ProductResponse>>();
 
-        Assert.Equal("Wireless Mouse", result!.Items.First().Name);
+        Assert.Equal("Mouse", result!.Items.First().Name);
     }
 
 }
