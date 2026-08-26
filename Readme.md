@@ -168,6 +168,8 @@ CommerceAI/
 - [x] Complete CreateProduct endpoint
 - [x] GetProduct query
 - [x] GetProducts query
+- [ ] UpdateProduct command
+- [ ] DeleteProduct command
 - [x] Pagination
 - [x] Filtering
 - [x] Sorting
@@ -330,7 +332,7 @@ AI will be treated as a first-class capability of CommerceAI.
 
 - [x] PostgreSQL integration tests
 - [x] Repository tests
-- [ ] API integration tests
+- [x] API integration tests
 - [x] Testcontainers
 - [ ] RabbitMQ integration tests
 - [ ] Redis integration tests
