@@ -665,7 +665,7 @@ Distributed Components
 AI/LLM Features
 ```
 
----
+--- 
 
 # Learning Philosophy
 
