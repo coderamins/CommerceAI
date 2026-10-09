@@ -29,6 +29,7 @@ public class GetProductByIdQueryHandler
             product.Id,
             product.Name,
             product.Price,
-            product.Stock);
+            product.Stock,
+            product.Version);
     }
 }

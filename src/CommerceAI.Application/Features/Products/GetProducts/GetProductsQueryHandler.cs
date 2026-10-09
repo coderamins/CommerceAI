@@ -37,7 +37,8 @@ public class GetProductsQueryHandler
                 product.Id,
                 product.Name,
                 product.Price,
-                product.Stock))
+                product.Stock,
+                product.Version))
             .ToList();
 
         return new PaginatedResult<ProductResponse>(

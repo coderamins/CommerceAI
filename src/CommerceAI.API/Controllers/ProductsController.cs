@@ -1,9 +1,10 @@
-﻿using CommerceAI.Application.Features.Products.CreateProduct;
+﻿using CommerceAI.API.Contracts.Products;
+using CommerceAI.Application.Features.Products.CreateProduct;
+using CommerceAI.Application.Features.Products.DeleteProduct;
+using CommerceAI.Application.Features.Products.UpdateProduct;
 using CommerceAI.Application.Queries.Products.GetProductById;
 using CommerceAI.Application.Queries.Products.GetProducts;
 using MediatR;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CommerceAI.API.Controllers
@@ -60,6 +61,36 @@ namespace CommerceAI.API.Controllers
                 cancellationToken);
 
             return Ok(result);
+        }
+
+        [HttpPut("{id:guid}")]
+        public async Task<IActionResult> Update(
+            Guid id,
+            UpdateProductRequest request,
+            CancellationToken cancellationToken)
+        {
+            var command = new UpdateProductCommand(
+                id,
+                request.Name,
+                request.Price,
+                request.Stock,
+                request.Version);
+
+            await _sender.Send(command, cancellationToken);
+
+            return NoContent();
+        }
+
+        [HttpDelete("{id:guid}")]
+        public async Task<IActionResult> Delete(
+            Guid Id,
+            CancellationToken cancellationToken)
+        {
+            await _sender.Send(
+                new DeleteProductCommand(Id),
+                cancellationToken);
+
+            return NoContent();
         }
     }
 }

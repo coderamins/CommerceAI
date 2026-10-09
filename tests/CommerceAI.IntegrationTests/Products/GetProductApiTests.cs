@@ -1,13 +1,12 @@
-﻿using CommerceAI.Application.Common.Models;
+﻿using CommerceAI.API.Contracts.Products;
+using CommerceAI.Application.Common.Models;
 using CommerceAI.Application.Queries.Products.GetProductById;
 using CommerceAI.Domain.Entities;
 using CommerceAI.IntegrationTests.Infrastructure;
-using Docker.DotNet.Models;
+using FluentAssertions;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using Xunit;
@@ -140,4 +139,152 @@ public class GetProductApiTests : IntegrationTestBase
         Assert.Equal("Mouse", result!.Items.First().Name);
     }
 
+    [Fact]
+    public async Task Update_ShouldReturnNoContent_WhenProductExists()
+    {
+        var product = new Product(
+            "Old Product",
+            100,
+            10);    
+
+        await Factory.SeedAsync(product);
+
+        var request = new UpdateProductRequest(
+            "Updated Product",
+            150,
+            20,
+            product.Version);
+
+        var response = await Client.PutAsJsonAsync(
+            $"/api/products/{product.Id}",
+            request);
+
+        response.StatusCode
+            .Should()       
+            .Be(HttpStatusCode.NoContent);
+    }
+
+    [Fact]
+    public async Task Update_ShouldPersistChanges()
+    {
+        var product = new Product(
+            "Old Product",
+            100,
+            10);
+
+        await Factory.SeedAsync(product);
+
+        var request = new UpdateProductRequest(
+            "Updated Product",
+            200,
+            20,
+            product.Version);
+
+        var updateResponse = await Client.PutAsJsonAsync(
+            $"/api/products/{product.Id}",
+            request);
+
+        updateResponse.StatusCode
+            .Should().Be(HttpStatusCode.NoContent);
+
+        var getResponse =
+            await Client.GetAsync($"/api/products/{product.Id}");
+
+        getResponse.StatusCode
+            .Should().Be(HttpStatusCode.OK);
+
+        var updatedProduct=
+            await getResponse.Content
+            .ReadFromJsonAsync<ProductResponse>();
+
+        updatedProduct.Should().NotBeNull();
+        updatedProduct!.Name.Should().Be("Updated Product");
+        updatedProduct.Price.Should().Be(200);
+        updatedProduct.Stock.Should().Be(20);
+    }
+
+    [Fact]
+    public async Task Update_ShrouldReturn_NotFound_WhenProductDoesNotExist()
+    {
+        var request = new UpdateProductRequest(
+            "Product 1",
+            100,
+            20,
+            new uint());
+
+        var updateResponse = await Client.PutAsJsonAsync(
+            $"/api/products/{Guid.NewGuid()}",request);
+
+        updateResponse.StatusCode
+            .Should()
+            .Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task Update_ShouldReturnBadRequest_WhenPriceIsInvalid()
+    {
+        var product = new Product(
+            "product",
+            100,
+            10);
+
+        await Factory.SeedAsync(product);
+
+        var request = new UpdateProductRequest(
+            "Updated Product",
+            0,
+            20,
+            product.Version);
+
+        var updateResponse =
+            await Client
+            .PutAsJsonAsync($"/api/products/{product.Id}", request);
+
+        updateResponse.StatusCode
+            .Should()
+            .Be(HttpStatusCode.BadRequest);   
+    }
+
+
+    [Fact]
+    public async Task Update_Should_Return_409_When_Product_Was_Modified()
+    {
+        //Arrange
+        var product = new Product("Keyboard", 100, 10);
+
+        await Factory.SeedAsync(product);
+
+        //Client A reads
+        var clientA = await Client.GetFromJsonAsync<ProductResponse>(
+            $"/api/products/{product.Id}");
+
+        //Client B reads
+        var clientB = await Client.GetFromJsonAsync<ProductResponse>(
+            $"/api/products/{product.Id}");
+
+        //A updates successfully
+        var responseA = await Client.PutAsJsonAsync(
+            $"/api/products/{product.Id}",
+            new UpdateProductRequest
+            (
+                "Keyboard Pro",
+                110,
+                10,
+                clientA!.Version
+            ));
+
+        Assert.Equal(HttpStatusCode.NoContent, responseA.StatusCode);
+
+        //B tries with stale version
+        var responseB = await Client.PutAsJsonAsync(
+            $"/api/products/{product.Id}",
+            new UpdateProductRequest(
+                "Keayboard XL",
+                120,
+                11,
+                clientB!.Version));
+
+        Assert.Equal(HttpStatusCode.Conflict,responseB.StatusCode);
+
+    }
 }
