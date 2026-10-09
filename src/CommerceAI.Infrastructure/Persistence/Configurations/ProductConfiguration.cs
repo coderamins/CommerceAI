@@ -21,5 +21,9 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
 
         builder.Property(x => x.Stock)
             .IsRequired();
+
+        builder.Property(x => x.Version)
+            .HasColumnName("xmin")
+            .IsRowVersion();
     }
 }
