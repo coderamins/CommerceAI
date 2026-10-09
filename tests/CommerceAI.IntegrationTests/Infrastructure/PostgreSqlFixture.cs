@@ -1,6 +1,8 @@
 ﻿using CommerceAI.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 using Testcontainers.PostgreSql;
+using Xunit;
 
 namespace CommerceAI.IntegrationTests.Infrastructure;
 
