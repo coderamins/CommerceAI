@@ -3,5 +3,4 @@
 public sealed record UpdateProductRequest(
     string Name,
     decimal Price,
-    int Stock,
-    uint Version);
+    int Stock);

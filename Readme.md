@@ -55,12 +55,13 @@ Planned:
 
 ## DevOps
 
+- [x] Git
+- [x] GitHub
+- [x] GitHub Actions
+- [x] CI
+
 Planned:
 
-- Git
-- GitHub
-- GitHub Actions
-- CI
 - CD
 - Docker-based deployment
 - VPS deployment
@@ -192,17 +193,39 @@ CommerceAI/
 - [x] Automated unit tests
 - [x] Automated integration tests
 
-### Next
+### Product API
 
-- [ ] Update Product
-- [ ] Delete Product
-- [ ] Improve API integration tests
-- [ ] Test GetProduct query
-- [ ] Test GetProducts query
-- [ ] Test CreateProduct handler
-- [ ] Test missing product scenarios
-- [ ] API documentation with Swagger
-- [ ] Code coverage
+- [x] CreateProduct endpoint
+- [x] GetProduct query
+- [x] GetProducts query
+- [x] Update Product
+- [x] Delete Product
+- [x] Pagination
+- [x] Filtering
+- [x] Sorting
+- [x] Product validation
+- [x] Missing product handling
+- [x] Global exception handling
+- [x] ProblemDetails responses
+- [x] API documentation with Swagger
+
+### Integration Testing
+
+- [x] Product CRUD integration tests
+- [x] GetProduct query tests
+- [x] GetProducts query tests
+- [x] Update Product tests
+- [x] Delete Product tests
+- [x] Missing product scenarios
+- [x] Validation error tests
+- [x] Testcontainers with PostgreSQL
+- [x] Database cleanup between tests with Respawn
+
+### Remaining
+
+- [ ] Improve test coverage
+- [ ] Test CreateProduct handler independently
+- [ ] Code coverage reports
 
 ---
 
@@ -234,10 +257,18 @@ CommerceAI/
 - [x] Pagination
 - [x] Filtering
 - [x] Sorting
-- [x] Optimized queries
 - [x] No-tracking queries
+- [x] Optimistic concurrency control
+  - [x] PostgreSQL `xmin` row versioning
+  - [x] EF Core concurrency-token configuration
+  - [x] ETag response headers
+  - [x] Conditional updates using `If-Match`
+  - [x] Missing precondition handling (`428 Precondition Required`)
+  - [x] Invalid ETag handling (`400 Bad Request`)
+  - [x] Stale ETag handling (`412 Precondition Failed`)
+  - [x] Integration tests for stale ETags
 - [ ] Database indexes
-- [ ] Concurrency handling
+- [ ] Query performance analysis
 
 ---
 
@@ -320,18 +351,24 @@ AI will be treated as a first-class capability of CommerceAI.
 
 ## Unit Tests
 
+- [x] Validator tests
 - [ ] Domain tests
 - [ ] Value Object tests
 - [ ] Command handler tests
-- [x] Validator tests
 - [ ] Business rule tests
 
 ## Integration Tests
 
-- [x] PostgreSQL integration tests
-- [x] Repository tests
-- [ ] API integration tests
+- [x] xUnit
+- [x] `WebApplicationFactory`
 - [x] Testcontainers
+- [x] PostgreSQL integration tests
+- [x] Respawn database cleanup
+- [x] Product CRUD API tests
+- [x] Pagination, filtering, and sorting tests
+- [x] Validation and error-response tests
+- [x] Optimistic concurrency tests
+- [x] Stale ETag rejection tests
 - [ ] RabbitMQ integration tests
 - [ ] Redis integration tests
 
@@ -631,9 +668,22 @@ Topics that will be covered include:
 
 # Current Status
 
-**Current phase:** Foundation
+**Current phase:** Phase 2 — Production Backend
 
-**Current focus:** Automated testing and integration testing
+**Completed focus:** Product CRUD, integration testing, and optimistic concurrency.
+
+Implemented capabilities:
+
+- Product creation, retrieval, updating, and deletion
+- Pagination, filtering, and sorting
+- CQRS with MediatR
+- FluentValidation pipeline
+- Global exception handling with ProblemDetails
+- PostgreSQL persistence with EF Core
+- Integration tests using xUnit, `WebApplicationFactory`, Testcontainers, and Respawn
+- PostgreSQL `xmin` concurrency control
+- HTTP ETags and conditional product updates using `If-Match`
+- Stale update rejection with `412 Precondition Failed`
 
 Current application flow:
 
@@ -652,6 +702,8 @@ EF Core
  ↓
 PostgreSQL
 ```
+
+**Next planned feature:** Authentication and authorization, beginning with secure password hashing and user registration.
 
 --- 
 

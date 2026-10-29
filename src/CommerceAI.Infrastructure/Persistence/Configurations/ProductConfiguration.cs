@@ -23,7 +23,6 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
             .IsRequired();
 
         builder.Property(x => x.Version)
-            .HasColumnName("xmin")
             .IsRowVersion();
     }
 }

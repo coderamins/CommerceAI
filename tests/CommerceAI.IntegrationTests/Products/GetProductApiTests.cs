@@ -7,6 +7,8 @@ using FluentAssertions;
 using System;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using Xunit;
@@ -145,22 +147,28 @@ public class GetProductApiTests : IntegrationTestBase
         var product = new Product(
             "Old Product",
             100,
-            10);    
+            10);
 
         await Factory.SeedAsync(product);
 
         var request = new UpdateProductRequest(
             "Updated Product",
             150,
-            20,
-            product.Version);
+            20);
 
-        var response = await Client.PutAsJsonAsync(
-            $"/api/products/{product.Id}",
-            request);
+        using var httpRequest = new HttpRequestMessage(
+            HttpMethod.Put,
+            $"/api/products/{product.Id}");
+
+        httpRequest.Headers.IfMatch
+            .Add(new EntityTagHeaderValue($"\"{product.Version}\""));
+
+        httpRequest.Content = JsonContent.Create(request);
+
+        var response = await Client.SendAsync(httpRequest);
 
         response.StatusCode
-            .Should()       
+            .Should()
             .Be(HttpStatusCode.NoContent);
     }
 
@@ -177,12 +185,18 @@ public class GetProductApiTests : IntegrationTestBase
         var request = new UpdateProductRequest(
             "Updated Product",
             200,
-            20,
-            product.Version);
+            20);
 
-        var updateResponse = await Client.PutAsJsonAsync(
-            $"/api/products/{product.Id}",
-            request);
+        using var httpRequest = new HttpRequestMessage(
+            HttpMethod.Put,
+            $"/api/products/{product.Id}");
+
+        httpRequest.Headers.IfMatch
+            .Add(new EntityTagHeaderValue($"\"{product.Version}\""));
+
+        httpRequest.Content = JsonContent.Create(request);
+
+        var updateResponse = await Client.SendAsync(httpRequest);
 
         updateResponse.StatusCode
             .Should().Be(HttpStatusCode.NoContent);
@@ -193,7 +207,7 @@ public class GetProductApiTests : IntegrationTestBase
         getResponse.StatusCode
             .Should().Be(HttpStatusCode.OK);
 
-        var updatedProduct=
+        var updatedProduct =
             await getResponse.Content
             .ReadFromJsonAsync<ProductResponse>();
 
@@ -209,11 +223,18 @@ public class GetProductApiTests : IntegrationTestBase
         var request = new UpdateProductRequest(
             "Product 1",
             100,
-            20,
-            new uint());
+            20);
 
-        var updateResponse = await Client.PutAsJsonAsync(
-            $"/api/products/{Guid.NewGuid()}",request);
+        using var httpRequest = new HttpRequestMessage(
+            HttpMethod.Put,
+            $"/api/products/{Guid.NewGuid()}");
+
+        httpRequest.Headers.IfMatch.Add(new
+            EntityTagHeaderValue($"\"{new uint()}\""));
+
+        httpRequest.Content = JsonContent.Create(request);
+
+        var updateResponse = await Client.SendAsync(httpRequest);
 
         updateResponse.StatusCode
             .Should()
@@ -233,16 +254,25 @@ public class GetProductApiTests : IntegrationTestBase
         var request = new UpdateProductRequest(
             "Updated Product",
             0,
-            20,
-            product.Version);
+            20);
 
-        var updateResponse =
-            await Client
-            .PutAsJsonAsync($"/api/products/{product.Id}", request);
+        using var httpRequest = new HttpRequestMessage(
+            HttpMethod.Put,
+            $"/api/products/{product.Id}");
 
-        updateResponse.StatusCode
-            .Should()
-            .Be(HttpStatusCode.BadRequest);   
+        httpRequest.Content = JsonContent.Create(request);
+
+        httpRequest.Headers.IfMatch.Add(
+            new EntityTagHeaderValue(
+                $"\"{product.Version}\""));
+
+        // Act
+        var response = await Client.SendAsync(httpRequest);
+
+        // Assert
+        Assert.Equal(
+            HttpStatusCode.BadRequest,
+            response.StatusCode);
     }
 
 
@@ -263,28 +293,181 @@ public class GetProductApiTests : IntegrationTestBase
             $"/api/products/{product.Id}");
 
         //A updates successfully
-        var responseA = await Client.PutAsJsonAsync(
-            $"/api/products/{product.Id}",
-            new UpdateProductRequest
-            (
-                "Keyboard Pro",
+        using var httpRequestA = new HttpRequestMessage(
+                HttpMethod.Put,
+                $"/api/products/{product.Id}");
+
+        httpRequestA.Content = JsonContent
+            .Create(new UpdateProductRequest(
+                 "Keyboard Pro",
                 110,
-                10,
-                clientA!.Version
-            ));
+                10));
+
+        httpRequestA.Headers.IfMatch.Add(
+            new EntityTagHeaderValue($"\"{clientA!.Version}\""));
+
+        var responseA = await Client.SendAsync(httpRequestA);
 
         Assert.Equal(HttpStatusCode.NoContent, responseA.StatusCode);
 
         //B tries with stale version
-        var responseB = await Client.PutAsJsonAsync(
-            $"/api/products/{product.Id}",
-            new UpdateProductRequest(
+        using var httpRequestB = new HttpRequestMessage(
+            HttpMethod.Put,
+            $"/api/products/{product.Id}");
+
+        httpRequestB.Content = JsonContent
+            .Create(new UpdateProductRequest(
                 "Keayboard XL",
                 120,
-                11,
-                clientB!.Version));
+                11));
 
-        Assert.Equal(HttpStatusCode.Conflict,responseB.StatusCode);
+        httpRequestB.Headers.IfMatch.Add(
+            new EntityTagHeaderValue($"\"{clientB!.Version}\""));
 
+        var responseB = await Client.SendAsync(httpRequestB);
+
+        Assert.Equal(HttpStatusCode.PreconditionFailed, responseB.StatusCode);
     }
+
+    [Fact]
+    public async Task Update_ShouldReturn_PreconditionFailed_WhenETagsIstale()
+    {
+        //Arrange
+        var product = new Product("Test Product", 100m, 10);
+        await Factory.SeedAsync(product);
+
+        //Retrieve the product and its original ETag.
+        var getResponse = await Client.GetAsync(
+            $"/api/products/{product.Id}");
+
+        getResponse.EnsureSuccessStatusCode();
+
+        var originalETag = getResponse.Headers.ETag;
+        Assert.NotNull(originalETag);
+
+        //First update succeed using the original ETag.
+        var firstRequest = new UpdateProductRequest(
+                    "First Update",
+                    120m,
+                    10);
+
+
+        using var firstHttpRequest = new HttpRequestMessage(
+            HttpMethod.Put,
+            $"/api/products/{product.Id}")
+        {
+            Content = JsonContent.Create(firstRequest)
+        };
+
+        firstHttpRequest.Headers.IfMatch.Add(originalETag);
+
+        var firstResponse = await Client.SendAsync(firstHttpRequest);
+
+        Assert.Equal(
+            HttpStatusCode.NoContent,
+            firstResponse.StatusCode);
+
+
+        //Second update uses the now-stale ETag.
+        var secondRequest = new UpdateProductRequest(
+                    "Second Update",
+                    90m,
+                    10);
+
+
+        using var secondHttpRequest = new HttpRequestMessage(
+            HttpMethod.Put,
+            $"/api/products/{product.Id}")
+        {
+            Content = JsonContent.Create(firstRequest)
+        };
+
+        secondHttpRequest.Headers.IfMatch.Add(originalETag);
+
+        //Act
+        var secondResponse = await Client.SendAsync(secondHttpRequest);
+
+        //Assert
+        Assert.Equal(
+            HttpStatusCode.PreconditionFailed,
+            secondResponse.StatusCode);
+
+
+        //Verify the first update remains intact.
+        var finalResponse = await Client.GetAsync(
+            $"/api/products/{product.Id}");
+
+        finalResponse.EnsureSuccessStatusCode();
+
+        var finalProduct = await finalResponse.Content
+            .ReadFromJsonAsync<ProductResponse>();
+
+        Assert.NotNull(finalProduct);
+        Assert.Equal("First Update", finalProduct.Name);
+        Assert.Equal(120m, finalProduct.Price);
+    }
+
+    [Fact]
+    public async Task GetById_ShouldReturnETag_WhenProductExists()
+    {
+        var product = new Product("Test Product", 100m, 10);
+        await Factory.SeedAsync(product);
+
+        var response = await Client.GetAsync(
+            $"/api/products/{product.Id}");
+
+        response.EnsureSuccessStatusCode();
+
+        Assert.NotNull(response.Headers.ETag);
+        Assert.False(response.Headers.ETag.IsWeak);
+    }
+
+    [Fact]
+    public async Task Update_ShouldReturn428_WhenIfMatchIsMissing()
+    {
+        var product = new Product("Test Product", 100m, 10);
+        await Factory.SeedAsync(product);
+
+        var request = new UpdateProductRequest(
+            "Updated Product",
+            120m,
+            10);
+
+        var response = await Client.PutAsJsonAsync(
+            $"/api/products/{product.Id}",
+            request);
+
+        Assert.Equal(
+            HttpStatusCode.PreconditionRequired,
+            response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Update_ShouldReturnBadRequest_WhenIfMatchIsMalformed()
+    {
+        var product = new Product("Test Product", 100m, 10);
+        await Factory.SeedAsync(product);
+
+        using var request = new HttpRequestMessage(
+            HttpMethod.Put,
+            $"/api/products/{product.Id}")
+        {
+            Content = JsonContent.Create(
+                new UpdateProductRequest(
+                    "Updated Product",
+                    120m,
+                    10))
+        };
+
+        request.Headers.TryAddWithoutValidation(
+            "If-Match",
+            "not-a-valid-etag");
+
+        var response = await Client.SendAsync(request);
+
+        Assert.Equal(
+            HttpStatusCode.BadRequest,
+            response.StatusCode);
+    }
+
 }

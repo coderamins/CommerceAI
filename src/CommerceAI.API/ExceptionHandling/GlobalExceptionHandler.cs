@@ -91,9 +91,9 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
     {
         return new ProblemDetails
         {
-            Status = StatusCodes.Status409Conflict,
-            Title = "Concurrency conflict.",
-            Detail = "The resource was modified by another request. Please reload the resource and try again.",
+            Status = StatusCodes.Status412PreconditionFailed,
+            Title = "Precondition Failed.",
+            Detail = "The product has been changed since it was retrieved. Please reload the resource and try again.",
             Instance = context.Request.Path
         };
     }
