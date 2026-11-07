@@ -21,8 +21,9 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
         CancellationToken cancellationToken)
     {
         _logger.LogError(
-                exception,
-                "Unhandled exception occurred.");
+            exception,
+            "An unexpected error occurred while processing the request. TraceId: {TraceId}",
+            httpContext.TraceIdentifier);
 
         var problemDetails = exception switch
         {
