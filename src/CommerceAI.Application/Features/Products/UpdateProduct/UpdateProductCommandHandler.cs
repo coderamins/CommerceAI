@@ -1,5 +1,7 @@
 ﻿using CommerceAI.Application.Interfaces;
+using CommerceAI.Application.Metrics;
 using MediatR;
+using System.Diagnostics;
 
 namespace CommerceAI.Application.Features.Products.UpdateProduct;
 
@@ -7,11 +9,14 @@ public sealed class UpdateProductCommandHandler
     : IRequestHandler<UpdateProductCommand>
 {
     private readonly IProductRepository _productRepository;
+    private readonly ICommerceAIMetrics _metrics;
 
     public UpdateProductCommandHandler(
-        IProductRepository productRepository)
+        IProductRepository productRepository,
+        ICommerceAIMetrics metrics)
     {
         _productRepository = productRepository;
+        _metrics = metrics;
     }
 
     public async Task Handle(
@@ -27,6 +32,8 @@ public sealed class UpdateProductCommandHandler
                 $"Product with id {request.Id} was not found");
         }
 
+        var sw = Stopwatch.StartNew();
+
         _productRepository.SetOriginalVersion(
                 product,
                 request.Version);
@@ -38,5 +45,10 @@ public sealed class UpdateProductCommandHandler
 
         await _productRepository.SaveChangesAsync(
             cancellationToken);
+
+        sw.Stop();
+
+        _metrics.RecordProductOperationDuration("update", sw.Elapsed.Microseconds);
+        _metrics.ProductUpdated();
     }
 }
