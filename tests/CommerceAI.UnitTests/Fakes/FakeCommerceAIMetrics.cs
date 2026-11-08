@@ -1,5 +1,7 @@
 ﻿using CommerceAI.Application.Metrics;
 
+namespace CommerceAI.UnitTests.Fakes;
+
 public sealed class FakeCommerceAIMetrics
     : ICommerceAIMetrics
 {
