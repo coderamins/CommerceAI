@@ -28,4 +28,7 @@ public interface IProductRepository
 
     Task<int> CountAsync(
         CancellationToken cancellationToken = default);
+
+    void Remove(Product product);
+    void SetOriginalVersion(Product product, uint version);
 }

@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CommerceAI.API.ExceptionHandling;
 
@@ -20,15 +21,24 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
         CancellationToken cancellationToken)
     {
         _logger.LogError(
-                exception,
-                "Unhandled exception occurred.");
+            exception,
+            "An unexpected error occurred while processing the request. TraceId: {TraceId}",
+            httpContext.TraceIdentifier);
 
         var problemDetails = exception switch
         {
             ValidationException validationException =>
                 CreateValidationProblemDetails(
-                        httpContext,
-                        validationException),
+                    httpContext,
+                    validationException),
+
+            KeyNotFoundException notFoundException =>
+                CreateNotFoundProblemDetails(
+                    httpContext,
+                    notFoundException),
+
+            DbUpdateConcurrencyException =>
+                CreateConcurrencyProblemDetails(httpContext),
 
             _ => CreateInternalServerError(httpContext)
         };
@@ -73,6 +83,31 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
             Status = StatusCodes.Status400BadRequest,
             Title = "Validation failed.",
             Detail = "One or more validation errors occurred.",
+            Instance = context.Request.Path
+        };
+    }
+
+    private static ProblemDetails CreateConcurrencyProblemDetails(
+        HttpContext context)
+    {
+        return new ProblemDetails
+        {
+            Status = StatusCodes.Status412PreconditionFailed,
+            Title = "Precondition Failed.",
+            Detail = "The product has been changed since it was retrieved. Please reload the resource and try again.",
+            Instance = context.Request.Path
+        };
+    }
+
+    private static ProblemDetails CreateNotFoundProblemDetails(
+    HttpContext context,
+    KeyNotFoundException exception)
+    {
+        return new ProblemDetails
+        {
+            Status = StatusCodes.Status404NotFound,
+            Title = "Resource not found.",
+            Detail = exception.Message,
             Instance = context.Request.Path
         };
     }

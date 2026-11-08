@@ -1,10 +1,12 @@
-﻿using CommerceAI.Application.Features.Products.CreateProduct;
+﻿using CommerceAI.API.Contracts.Products;
+using CommerceAI.Application.Features.Products.CreateProduct;
+using CommerceAI.Application.Features.Products.DeleteProduct;
+using CommerceAI.Application.Features.Products.UpdateProduct;
 using CommerceAI.Application.Queries.Products.GetProductById;
 using CommerceAI.Application.Queries.Products.GetProducts;
 using MediatR;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using System.Globalization;
 
 namespace CommerceAI.API.Controllers
 {
@@ -24,8 +26,8 @@ namespace CommerceAI.API.Controllers
             CreateProductCommand command,
             CancellationToken cancellationToken)
         {
-            var productId= await _sender
-                .Send(command,cancellationToken);
+            var productId = await _sender
+                .Send(command, cancellationToken);
 
             return CreatedAtAction(
                  nameof(GetById),
@@ -46,6 +48,8 @@ namespace CommerceAI.API.Controllers
             if (product is null)
                 return NotFound();
 
+            Response.Headers.ETag = $"\"{product.Version}\"";
+
             return Ok(product);
         }
 
@@ -60,6 +64,68 @@ namespace CommerceAI.API.Controllers
                 cancellationToken);
 
             return Ok(result);
+        }
+
+        [HttpPut("{id:guid}")]
+        public async Task<IActionResult> Update(
+            Guid id,
+            UpdateProductRequest request,
+            CancellationToken cancellationToken)
+        {
+            var ifMatch = Request.Headers["If-Match"].ToString().Trim();
+
+            if (string.IsNullOrWhiteSpace(ifMatch))
+            {
+                return StatusCode(
+                    StatusCodes.Status428PreconditionRequired,
+                    new ProblemDetails
+                    {
+                        Status = StatusCodes.Status428PreconditionRequired,
+                        Title = "Precondition required.",
+                        Detail = "Provide the product ETag in the if-Match header"
+                    });
+            }
+
+            if (ifMatch.Length < 3 ||
+                ifMatch[0] != '"' ||
+                ifMatch[^1] != '"' ||
+                ifMatch.Contains(',') ||
+                !uint.TryParse(
+                    ifMatch.AsSpan(1, ifMatch.Length - 2),
+                    NumberStyles.None,
+                    CultureInfo.InvariantCulture,
+                    out var expectedVersion))
+            {
+                return BadRequest(new ProblemDetails
+                {
+                    Status = StatusCodes.Status400BadRequest,
+                    Title = "Invalid If-Match header.",
+                    Detail = "Provide one strong ETag in the format \"12345\"."
+                });
+            }
+
+            var command = new UpdateProductCommand(
+                id,
+                request.Name,
+                request.Price,
+                request.Stock,
+                expectedVersion);
+
+            await _sender.Send(command, cancellationToken);
+
+            return NoContent();
+        }
+
+        [HttpDelete("{id:guid}")]
+        public async Task<IActionResult> Delete(
+            Guid Id,
+            CancellationToken cancellationToken)
+        {
+            await _sender.Send(
+                new DeleteProductCommand(Id),
+                cancellationToken);
+
+            return NoContent();
         }
     }
 }

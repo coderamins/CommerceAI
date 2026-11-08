@@ -37,13 +37,15 @@ public class GetProductsQueryHandler
                 product.Id,
                 product.Name,
                 product.Price,
-                product.Stock))
+                product.Stock,
+                product.Version))
             .ToList();
 
         return new PaginatedResult<ProductResponse>(
             items,
-            result.TotalCount,
             result.PageNumber,
-            result.PageSize);
+            result.PageSize,
+            result.TotalCount
+            );
     }
 }

@@ -28,6 +28,11 @@ public class ProductRepository : IProductRepository
             .Products.FindAsync(id, cancellationToken);
     }
 
+    public void Remove(Product product)
+    {
+        _context.Products.Remove(product);
+    }
+
     public async Task<PaginatedResult<Product>> GetPagedAsync(
         int pageNumber,
         int pageSize,
@@ -91,9 +96,9 @@ public class ProductRepository : IProductRepository
 
         return new PaginatedResult<Product>(
             items,
-            totalCount,
             pageNumber,
-            pageSize);
+            pageSize,
+            totalCount);
     }
 
 
@@ -108,5 +113,12 @@ public class ProductRepository : IProductRepository
         CancellationToken cancellationToken = default)
     {
         await _context.SaveChangesAsync(cancellationToken);
+    }
+
+    public void SetOriginalVersion(Product product, uint version)
+    {
+        _context.Entry(product)
+            .Property(x=>x.Version)
+            .OriginalValue= version;
     }
 }
